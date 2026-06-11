@@ -197,15 +197,15 @@
       <div class="pill">제출 후 수정 불가</div>
     </div>
 
-    <nav class="stepper" aria-label="참가 단계">
-      <button id="stepJoinBtn" class="step-btn active" type="button"><span class="num">1</span> 참가자 입력</button>
-      <button id="stepBoardBtn" class="step-btn" type="button"><span class="num">2</span> 게임 현황</button>
+    <nav class="stepper" aria-label="게임 화면 전환">
+      <button id="stepBoardBtn" class="step-btn active" type="button"><span class="num">1</span> 게임 현황</button>
+      <button id="stepJoinBtn" class="step-btn" type="button"><span class="num">2</span> 참가하기</button>
     </nav>
 
-    <section id="joinStep" class="panel">
+    <section id="joinStep" class="panel hide">
       <div class="grid">
         <div class="card" id="joinCard">
-          <h2>STEP 1. 참가자 입력</h2>
+          <h2>참가자 입력</h2>
           <div id="lockNotice" class="toast"></div>
           <div class="field">
             <label for="playerName">참가자 이름</label>
@@ -235,7 +235,7 @@
       </div>
     </section>
 
-    <section id="boardStep" class="panel hide">
+    <section id="boardStep" class="panel">
       <div class="grid">
         <div class="card wide">
           <div class="tabs">
@@ -243,8 +243,10 @@
             <button id="showAdmin" class="tab" type="button">관리자</button>
           </div>
           <div id="boardPanel">
-            <h2>STEP 2. 게임 현황</h2>
+            <h2>게임 현황</h2>
             <div class="stats" id="stats"></div>
+            <div class="actions"><button id="boardJoinBtn" class="gold" type="button">참가하기</button></div>
+            <div class="toast" id="boardJoinNotice"></div>
           </div>
           <div id="adminPanel" class="hide">
             <h2>관리자 결과 입력</h2>
@@ -283,7 +285,7 @@
     let data = null;
     let selectedPicks = {};
     let selectedResults = {};
-    let currentStep = 'join';
+    let currentStep = 'board';
     const $ = id => document.getElementById(id);
     const money = n => new Intl.NumberFormat('ko-KR').format(n) + '원';
     const htmlEscape = s => String(s ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -416,6 +418,9 @@
     function renderStats() {
       const finished = data.checkedCount === data.matches.length;
       $('stats').innerHTML = `<div class="stat"><div class="label">참가자</div><div class="value">${data.players.length}명</div></div><div class="stat"><div class="label">총상금</div><div class="value money">${money(data.pot)}</div></div><div class="stat"><div class="label">현재 생존</div><div class="value">${data.aliveCount}명</div></div><div class="stat"><div class="label">${finished ? '1인당 상금' : '진행 경기'}</div><div class="value">${finished ? money(data.prizePerWinner) : `${data.checkedCount}/3`}</div></div>`;
+      $('boardJoinBtn').disabled = data.locked;
+      $('boardJoinBtn').textContent = data.locked ? '참가 마감' : '참가하기';
+      $('boardJoinNotice').innerHTML = data.locked ? '<span class="badge locked">참가 마감</span> 경기 결과 입력이 시작되어 더 이상 참가할 수 없습니다.' : '참가하려면 참가하기 버튼을 눌러 예측을 입력해 주세요.';
     }
     function renderPlayersTable() {
       if (!data.players.length) { $('playersTable').innerHTML = '<div class="empty">아직 등록된 참가자가 없습니다.</div>'; return; }
@@ -481,6 +486,7 @@
       }
     }
     $('addPlayerBtn').addEventListener('click', submitPlayer);
+    $('boardJoinBtn').addEventListener('click', () => { if (!data?.locked) setStep('join'); });
     $('resetBtn').addEventListener('click', resetAll);
     $('stepJoinBtn').addEventListener('click', () => setStep('join'));
     $('stepBoardBtn').addEventListener('click', () => setStep('board'));
