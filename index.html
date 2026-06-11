@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>매국베팅</title>
+  <style>
+    :root {
+      --bg:#06140f;
+      --field:#0f7a3b;
+      --field2:#0b5f31;
+      --card:#071a20;
+      --card2:#0d2630;
+      --text:#f8fafc;
+      --muted:#b7c9d6;
+      --line:rgba(255,255,255,.14);
+      --red:#ef4444;
+      --green:#22c55e;
+      --yellow:#fbbf24;
+      --blue:#38bdf8;
+      --navy:#172554;
+      --gold:#facc15;
+      --white:#ffffff;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",Segoe UI,sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 18% 4%,rgba(239,68,68,.42),transparent 20%),
+        radial-gradient(circle at 82% 0%,rgba(56,189,248,.34),transparent 24%),
+        linear-gradient(135deg,rgba(255,255,255,.045) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.045) 50%,rgba(255,255,255,.045) 75%,transparent 75%,transparent),
+        linear-gradient(180deg,#06140f 0%,#062018 45%,#03110d 100%);
+      background-size:auto,auto,52px 52px,auto;
+    }
+    body::before {
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(90deg,transparent 0 48%,rgba(255,255,255,.08) 48% 52%,transparent 52%),
+        radial-gradient(circle at 50% 52%,transparent 0 78px,rgba(255,255,255,.1) 80px,transparent 82px),
+        linear-gradient(0deg,rgba(15,122,59,.42),rgba(11,95,49,.2));
+      opacity:.38;
+    }
+    .wrap { position:relative; max-width:1180px; margin:0 auto; padding:28px 18px 56px; }
+    header { display:grid; grid-template-columns:1fr auto; gap:16px; align-items:end; margin-bottom:18px; }
+    .hero-kicker { display:inline-flex; align-items:center; gap:8px; padding:7px 11px; border:1px solid rgba(255,255,255,.2); border-radius:999px; color:#dbeafe; background:rgba(2,6,23,.32); font-weight:900; font-size:13px; margin-bottom:10px; }
+    h1 { margin:0; font-size:clamp(30px,4.8vw,56px); line-height:1.02; letter-spacing:-.055em; text-shadow:0 7px 24px rgba(0,0,0,.32); }
+    .title-red { color:#fecaca; }
+    .title-blue { color:#bfdbfe; }
+    .subtitle { color:var(--muted); margin:12px 0 0; line-height:1.5; font-size:16px; }
+    .hero-ball { width:112px; height:112px; border-radius:50%; display:grid; place-items:center; background:radial-gradient(circle at 35% 25%,#fff,#dbeafe 58%,#94a3b8); color:#020617; font-size:52px; box-shadow:0 22px 52px rgba(0,0,0,.35), inset -10px -12px 20px rgba(15,23,42,.16); transform:rotate(-10deg); }
+    .pill { display:inline-flex; align-items:center; gap:8px; border:1px solid rgba(250,204,21,.36); background:rgba(250,204,21,.1); padding:9px 13px; border-radius:999px; color:#fef3c7; font-size:13px; white-space:nowrap; font-weight:800; }
+    .stepper { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:18px 0; }
+    .step-btn { display:flex; align-items:center; justify-content:center; gap:10px; min-height:58px; background:rgba(2,6,23,.42); color:var(--text); border-color:rgba(255,255,255,.18); font-size:16px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.02); }
+    .step-btn .num { width:28px; height:28px; display:grid; place-items:center; border-radius:999px; background:rgba(255,255,255,.12); color:#fff; font-weight:950; }
+    .step-btn.active { background:linear-gradient(135deg,#dc2626,#1d4ed8); border-color:rgba(255,255,255,.42); color:white; box-shadow:0 18px 45px rgba(29,78,216,.22); }
+    .step-btn.active .num { background:white; color:#111827; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .wide { grid-column:1/-1; }
+    .panel.hide, .hide { display:none; }
+    .card { background:linear-gradient(180deg,rgba(2,6,23,.76),rgba(7,26,32,.88)); border:1px solid var(--line); border-radius:24px; padding:18px; box-shadow:0 24px 70px rgba(0,0,0,.28); backdrop-filter:blur(10px); }
+    .card h2 { margin:0 0 14px; font-size:21px; letter-spacing:-.025em; }
+    .card h3 { margin:18px 0 10px; font-size:15px; color:var(--muted); font-weight:900; }
+    .rule-list { margin:0; padding-left:18px; color:var(--muted); line-height:1.65; }
+    input, button { font:inherit; border-radius:14px; border:1px solid var(--line); }
+    input { width:100%; background:rgba(2,6,23,.72); color:var(--text); padding:13px; outline:none; }
+    input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(56,189,248,.16); }
+    label { display:block; color:var(--muted); font-size:13px; margin:0 0 7px; font-weight:800; }
+    .field { margin-bottom:12px; }
+    .matches { display:grid; gap:10px; }
+    .match-row { display:grid; grid-template-columns:1fr 220px; gap:10px; align-items:center; background:linear-gradient(90deg,rgba(15,122,59,.2),rgba(255,255,255,.035)); border:1px solid var(--line); border-radius:18px; padding:12px; }
+    .match-title { font-weight:950; }
+    .match-note { color:var(--muted); font-size:13px; margin-top:4px; }
+    button { cursor:pointer; color:#051018; background:var(--blue); border-color:transparent; padding:12px 14px; font-weight:950; transition:transform .08s ease,filter .12s ease,background .12s ease,border-color .12s ease; }
+    button:hover { filter:brightness(1.08); }
+    button:active { transform:translateY(1px); }
+    button.secondary, .choice, .tab { background:rgba(255,255,255,.04); color:var(--text); border-color:var(--line); }
+    button.danger { background:var(--red); color:white; }
+    button.green { background:var(--green); color:#03140a; }
+    button.gold { background:linear-gradient(135deg,#fde047,#f59e0b); color:#291500; }
+    button:disabled { opacity:.45; cursor:not-allowed; }
+    .choice-group { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+    .choice { min-height:46px; padding:10px 8px; }
+    .choice.active { background:var(--blue); border-color:var(--blue); color:#051018; box-shadow:0 0 0 3px rgba(56,189,248,.16); }
+    .choice.win.active { background:var(--green); border-color:var(--green); color:#03140a; }
+    .choice.draw.active { background:var(--yellow); border-color:var(--yellow); color:#211300; }
+    .choice.lose.active { background:var(--red); border-color:var(--red); color:#fff; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .stat { background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025)); border:1px solid var(--line); border-radius:18px; padding:14px; }
+    .stat .value { font-size:24px; font-weight:950; margin-top:4px; }
+    .stat .label { color:var(--muted); font-size:13px; font-weight:800; }
+    .table-scroll { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:14px; }
+    .table-scroll::-webkit-scrollbar { height:7px; }
+    .table-scroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,.22); border-radius:999px; }
+    table { width:100%; min-width:720px; border-collapse:collapse; overflow:hidden; border-radius:14px; }
+    th, td { text-align:left; padding:11px 10px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:middle; white-space:nowrap; }
+    th { color:var(--muted); font-size:12px; font-weight:950; background:rgba(255,255,255,.045); white-space:nowrap; }
+    tr:last-child td { border-bottom:0; }
+    .badge { display:inline-block; padding:5px 9px; border-radius:999px; font-size:12px; font-weight:950; white-space:nowrap; }
+    .alive { background:rgba(34,197,94,.14); color:#86efac; }
+    .out { background:rgba(239,68,68,.16); color:#fca5a5; }
+    .winner { background:rgba(245,158,11,.16); color:#fcd34d; }
+    .locked { background:rgba(245,158,11,.16); color:#fcd34d; }
+    .patriot { background:rgba(34,197,94,.16); color:#bbf7d0; }
+    .traitor { background:rgba(239,68,68,.16); color:#fecaca; }
+    .neutral { background:rgba(148,163,184,.16); color:#e2e8f0; }
+    .toast { min-height:24px; margin-top:10px; color:#bfdbfe; font-size:14px; line-height:1.45; }
+    .error { color:#fecaca; }
+    .attitude-box { margin-top:12px; border:1px solid var(--line); border-radius:18px; padding:14px; background:rgba(2,6,23,.38); min-height:72px; }
+    .attitude-title { font-size:18px; font-weight:950; margin-bottom:5px; }
+    .attitude-text { color:var(--muted); line-height:1.5; }
+    .attitude-box.patriot { border-color:rgba(34,197,94,.38); background:linear-gradient(135deg,rgba(34,197,94,.16),rgba(250,204,21,.08)); color:var(--text); }
+    .attitude-box.traitor { border-color:rgba(239,68,68,.42); background:linear-gradient(135deg,rgba(239,68,68,.16),rgba(2,6,23,.32)); color:var(--text); }
+    .log { display:grid; gap:8px; }
+    .log-item { border:1px solid var(--line); background:rgba(255,255,255,.035); border-radius:14px; padding:10px 12px; color:var(--muted); line-height:1.45; }
+    .money { color:#fde68a; font-weight:950; }
+    .empty { color:var(--muted); text-align:center; padding:24px 10px; border:1px dashed var(--line); border-radius:16px; }
+    .tabs { display:flex; gap:8px; margin-bottom:12px; }
+    .tab.active { background:var(--blue); color:#051018; }
+    .mini-banner { display:flex; align-items:center; justify-content:space-between; gap:12px; background:linear-gradient(135deg,rgba(220,38,38,.22),rgba(37,99,235,.22)); border:1px solid rgba(255,255,255,.18); border-radius:20px; padding:14px; margin-bottom:14px; }
+    .mini-banner b { color:#fef3c7; }
+    .modal-overlay { position:fixed; inset:0; z-index:50; display:grid; place-items:center; padding:18px; background:rgba(2,6,23,.72); backdrop-filter:blur(8px); opacity:0; visibility:hidden; pointer-events:none; transition:opacity .18s ease, visibility .18s ease; }
+    .modal-overlay.show { opacity:1; visibility:visible; pointer-events:auto; }
+    .modal-card { width:min(460px,100%); border:1px solid rgba(255,255,255,.2); border-radius:28px; padding:24px; background:linear-gradient(180deg,rgba(3,18,26,.98),rgba(7,26,32,.98)); box-shadow:0 30px 90px rgba(0,0,0,.42); text-align:center; transform:translateY(18px) scale(.92); opacity:.4; transition:transform .28s cubic-bezier(.2,1.25,.32,1), opacity .22s ease; overflow:hidden; position:relative; }
+    .modal-overlay.show .modal-card { transform:translateY(0) scale(1); opacity:1; }
+    .modal-card::before { content:""; position:absolute; inset:-40%; background:conic-gradient(from 90deg, transparent, rgba(250,204,21,.22), transparent, rgba(56,189,248,.22), transparent); animation:spinGlow 2.8s linear infinite; opacity:.65; }
+    .modal-inner { position:relative; z-index:1; }
+    .modal-icon { font-size:54px; line-height:1; margin-bottom:8px; animation:bounceIn .58s ease both; }
+    .modal-title { margin:0; font-size:26px; letter-spacing:-.04em; }
+    .modal-text { margin:10px 0 0; color:var(--muted); line-height:1.55; }
+    .modal-actions { display:flex; justify-content:center; margin-top:18px; }
+    .modal-card.traitor { border-color:rgba(239,68,68,.5); }
+    .modal-card.patriot { border-color:rgba(34,197,94,.5); }
+    .confetti { position:absolute; width:9px; height:16px; top:-18px; border-radius:3px; animation:confettiFall 1.65s ease-in forwards; opacity:.92; }
+    @keyframes spinGlow { to { transform:rotate(360deg); } }
+    @keyframes bounceIn { 0%{transform:scale(.4) rotate(-10deg); opacity:0} 60%{transform:scale(1.12) rotate(4deg); opacity:1} 100%{transform:scale(1) rotate(0)} }
+    @keyframes confettiFall { 0%{transform:translateY(0) rotate(0deg); opacity:0} 12%{opacity:1} 100%{transform:translateY(520px) rotate(620deg); opacity:0} }
+    @media (max-width:840px) {
+      .grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.match-row{grid-template-columns:1fr}header{align-items:start;grid-template-columns:1fr}.hero-ball{display:none}.choice-group{grid-template-columns:repeat(3,1fr)}.stepper{grid-template-columns:1fr}.mini-banner{align-items:flex-start;flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="hero-kicker">🏆 ROAD TO WORLD CUP · 매국베팅</div>
+        <h1><span class="title-red">🇰🇷 매국베팅</span><br/><span class="title-blue">대한민국 조별예선</span> 승무패</h1>
+        <p class="subtitle">한국 vs 체코 · 멕시코 · 남아공 3경기 결과를 모두 맞힌 사람만 상금을 받습니다.</p>
+      </div>
+      <div class="hero-ball">⚽</div>
+    </header>
+
+    <div class="mini-banner">
+      <div>참가비 <b>20,000원</b> · 3경기 올킬 시 상금 수령 · 공동 우승 시 균등 배분</div>
+      <div class="pill">제출 후 수정 불가</div>
+    </div>
+
+    <nav class="stepper" aria-label="참가 단계">
+      <button id="stepJoinBtn" class="step-btn active" type="button"><span class="num">1</span> 참가자 입력</button>
+      <button id="stepBoardBtn" class="step-btn" type="button"><span class="num">2</span> 게임 현황</button>
+    </nav>
+
+    <section id="joinStep" class="panel">
+      <div class="grid">
+        <div class="card" id="joinCard">
+          <h2>STEP 1. 참가자 입력</h2>
+          <div id="lockNotice" class="toast"></div>
+          <div class="field">
+            <label for="playerName">참가자 이름</label>
+            <input id="playerName" placeholder="예: 고재형" autocomplete="off" />
+          </div>
+          <div class="matches" id="pickInputs"></div>
+          <div id="attitudeBox" class="attitude-box neutral">
+            <div class="attitude-title">예측 성향 대기 중</div>
+            <div class="attitude-text">3경기 승무패를 모두 선택하면 애국자/매국노 모드 판정이 표시됩니다.</div>
+          </div>
+          <div class="actions"><button id="addPlayerBtn" class="gold">이 예측으로 참가 등록</button></div>
+          <div class="toast" id="playerToast"></div>
+        </div>
+
+        <div class="card">
+          <h2>게임 규칙</h2>
+          <ol class="rule-list">
+            <li>참가자는 각 경기마다 <b>승/무/패 버튼</b> 중 하나만 선택합니다.</li>
+            <li><b>한 번 참가 등록하면 예측은 절대 수정할 수 없습니다.</b></li>
+            <li>2승 이상으로 예측하면 <b>애국자</b> 칭찬을 받습니다.</li>
+            <li>패가 더 많거나 승률 50% 미만이면 <b>매국노 모드</b> 경고가 뜹니다.</li>
+            <li>관리자가 첫 경기 결과를 입력하면 참가가 마감됩니다.</li>
+            <li>3경기를 모두 맞힌 참가자만 우승합니다.</li>
+            <li>총상금은 참가자 수 × 20,000원이며, 공동 우승이면 균등 분배합니다.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section id="boardStep" class="panel hide">
+      <div class="grid">
+        <div class="card wide">
+          <div class="tabs">
+            <button id="showBoard" class="tab active" type="button">현황</button>
+            <button id="showAdmin" class="tab" type="button">관리자</button>
+          </div>
+          <div id="boardPanel">
+            <h2>STEP 2. 게임 현황</h2>
+            <div class="stats" id="stats"></div>
+          </div>
+          <div id="adminPanel" class="hide">
+            <h2>관리자 결과 입력</h2>
+            <div class="field">
+              <label for="adminPin">관리자 PIN</label>
+              <input id="adminPin" type="password" placeholder="관리자만 입력" autocomplete="off" />
+            </div>
+            <div class="matches" id="resultInputs"></div>
+            <div class="toast" id="adminToast"></div>
+            <div class="actions"><button class="danger" id="resetBtn" type="button">전체 초기화</button></div>
+          </div>
+        </div>
+
+        <div class="card wide"><h2>참가자 목록</h2><div id="playersTable"></div></div>
+        <div class="card wide"><h2>경기 결과 입력 로그</h2><div class="log" id="log"></div></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="feedbackModal" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modalTitle">
+    <div id="modalCard" class="modal-card">
+      <div id="confettiLayer"></div>
+      <div class="modal-inner">
+        <div id="modalIcon" class="modal-icon">⚽</div>
+        <h2 id="modalTitle" class="modal-title">참가 등록 완료</h2>
+        <p id="modalText" class="modal-text"></p>
+        <div class="modal-actions"><button id="modalCloseBtn" class="gold" type="button">게임 현황 보기</button></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const OUTCOMES = ['승', '무', '패'];
+    const outcomeClass = { '승': 'win', '무': 'draw', '패': 'lose' };
+    const IS_ADMIN_PATH = window.location.pathname === '/admin';
+    let data = null;
+    let selectedPicks = {};
+    let selectedResults = {};
+    let currentStep = 'join';
+    const $ = id => document.getElementById(id);
+    const money = n => new Intl.NumberFormat('ko-KR').format(n) + '원';
+    const htmlEscape = s => String(s ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+
+    async function api(path, options = {}) {
+      const res = await fetch(path, { headers:{ 'content-type':'application/json' }, ...options });
+      const json = await res.json();
+      if (!res.ok || json.ok === false) throw new Error(json.error || '요청 실패');
+      return json;
+    }
+    async function refresh() { data = await api('/api/state'); renderAll(); }
+
+    function showBoardPanel() {
+      $('boardPanel').classList.remove('hide');
+      $('adminPanel').classList.add('hide');
+      $('showBoard').classList.add('active');
+      $('showAdmin').classList.remove('active');
+    }
+
+    function showAdminPanel() {
+      $('adminPanel').classList.remove('hide');
+      $('boardPanel').classList.add('hide');
+      $('showAdmin').classList.add('active');
+      $('showBoard').classList.remove('active');
+    }
+
+    function applyAdminMode() {
+      $('showAdmin').classList.toggle('hide', !IS_ADMIN_PATH);
+      if (IS_ADMIN_PATH) {
+        currentStep = 'board';
+        showAdminPanel();
+      } else if (!$('adminPanel').classList.contains('hide')) {
+        showBoardPanel();
+      }
+    }
+
+    function setStep(step) {
+      currentStep = step;
+      $('joinStep').classList.toggle('hide', step !== 'join');
+      $('boardStep').classList.toggle('hide', step !== 'board');
+      $('stepJoinBtn').classList.toggle('active', step === 'join');
+      $('stepBoardBtn').classList.toggle('active', step === 'board');
+      applyAdminMode();
+    }
+
+    function getAttitude(picks) {
+      const values = Object.values(picks || {}).filter(Boolean);
+      if (values.length < 3) return { type:'neutral', title:'예측 성향 대기 중', text:`${values.length}/3 선택 완료. 3경기 모두 선택하면 판정이 표시됩니다.`, label:'대기' };
+      const wins = values.filter(v => v === '승').length;
+      const losses = values.filter(v => v === '패').length;
+      const winRate = wins / values.length;
+      if (wins >= 2) return { type:'patriot', title:'🇰🇷 애국자 예측', text:`대한민국 2승 이상! 믿음이 살아 있습니다. 이 정도면 태극기 들고 응원석 입장입니다.`, label:'애국자' };
+      if (losses > wins || winRate < 0.5) return { type:'traitor', title:'🚨 매국노 모드 발동', text:'나라 팔아 돈 벌고 싶으신가요? 그래도 제출하면 수정 불가입니다.', label:'매국노 모드' };
+      return { type:'neutral', title:'중립 예측', text:'아직은 냉정한 분석가 모드입니다. 제출하면 수정할 수 없습니다.', label:'중립' };
+    }
+
+    function choiceButtons(group, matchId, selected, disabled = false) {
+      return `<div class="choice-group" data-group="${group}" data-match="${matchId}">${OUTCOMES.map(o => `<button type="button" class="choice ${outcomeClass[o]} ${selected === o ? 'active' : ''}" data-choice="${o}" ${disabled ? 'disabled' : ''}>${o}</button>`).join('')}</div>`;
+    }
+    function bindChoiceButtons() {
+      document.querySelectorAll('.choice-group').forEach(group => {
+        group.querySelectorAll('.choice').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const type = group.dataset.group;
+            const matchId = group.dataset.match;
+            const value = btn.dataset.choice;
+            if (type === 'pick') selectedPicks[matchId] = value;
+            if (type === 'result') selectedResults[matchId] = value;
+            group.querySelectorAll('.choice').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderAttitude();
+          });
+        });
+      });
+    }
+    function renderPickInputs() {
+      $('pickInputs').innerHTML = data.matches.map(match => `<div class="match-row"><div><div class="match-title">${match.label}</div><div class="match-note">한국 기준 결과 선택</div></div>${choiceButtons('pick', match.id, selectedPicks[match.id], data.locked)}</div>`).join('');
+      $('addPlayerBtn').disabled = data.locked;
+      $('playerName').disabled = data.locked;
+      $('lockNotice').innerHTML = data.locked ? '<span class="badge locked">참가 마감</span> 경기 결과 입력이 시작되어 더 이상 참가할 수 없습니다.' : '';
+      renderAttitude();
+    }
+    function renderAttitude() {
+      const box = $('attitudeBox');
+      if (!box) return;
+      const attitude = getAttitude(selectedPicks);
+      box.className = `attitude-box ${attitude.type}`;
+      box.innerHTML = `<div class="attitude-title">${attitude.title}</div><div class="attitude-text">${attitude.text}</div>`;
+    }
+
+    function launchConfetti(type) {
+      const layer = $('confettiLayer');
+      layer.innerHTML = '';
+      const colors = type === 'traitor' ? ['#ef4444','#f97316','#111827','#fecaca'] : ['#22c55e','#38bdf8','#facc15','#ffffff'];
+      for (let i = 0; i < 26; i++) {
+        const piece = document.createElement('span');
+        piece.className = 'confetti';
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = colors[i % colors.length];
+        piece.style.animationDelay = `${Math.random() * .42}s`;
+        piece.style.animationDuration = `${1.15 + Math.random() * .9}s`;
+        layer.appendChild(piece);
+      }
+    }
+
+    function showSubmissionPopup(attitude, name) {
+      const modal = $('feedbackModal');
+      const card = $('modalCard');
+      card.className = `modal-card ${attitude.type}`;
+      $('modalIcon').textContent = attitude.type === 'traitor' ? '🚨' : attitude.type === 'patriot' ? '🇰🇷' : '⚽';
+      $('modalTitle').textContent = attitude.type === 'traitor' ? '매국노 모드 발동' : attitude.type === 'patriot' ? '애국자 예측 등록' : '참가 등록 완료';
+      $('modalText').textContent = `${name.trim()}님, ${attitude.text}`;
+      launchConfetti(attitude.type);
+      modal.setAttribute('aria-hidden', 'false');
+      modal.classList.add('show');
+    }
+
+    function closeSubmissionPopup() {
+      $('feedbackModal').classList.remove('show');
+      $('feedbackModal').setAttribute('aria-hidden', 'true');
+      setStep('board');
+    }
+    function renderResultInputs() {
+      $('resultInputs').innerHTML = data.matches.map(match => {
+        const done = data.results[match.id];
+        return `<div class="match-row"><div><div class="match-title">${match.label}</div><div class="match-note">${done ? `입력 완료: ${done}` : '결과 입력 대기'}</div></div><div style="display:grid;gap:8px;">${choiceButtons('result', match.id, done || selectedResults[match.id], Boolean(done))}<button class="green" type="button" data-result-match="${match.id}" ${done ? 'disabled' : ''}>결과 확정</button></div></div>`;
+      }).join('');
+      document.querySelectorAll('[data-result-match]').forEach(btn => btn.addEventListener('click', submitResult));
+    }
+    function renderStats() {
+      const finished = data.checkedCount === data.matches.length;
+      $('stats').innerHTML = `<div class="stat"><div class="label">참가자</div><div class="value">${data.players.length}명</div></div><div class="stat"><div class="label">총상금</div><div class="value money">${money(data.pot)}</div></div><div class="stat"><div class="label">현재 생존</div><div class="value">${data.aliveCount}명</div></div><div class="stat"><div class="label">${finished ? '1인당 상금' : '진행 경기'}</div><div class="value">${finished ? money(data.prizePerWinner) : `${data.checkedCount}/3`}</div></div>`;
+    }
+    function renderPlayersTable() {
+      if (!data.players.length) { $('playersTable').innerHTML = '<div class="empty">아직 등록된 참가자가 없습니다.</div>'; return; }
+      $('playersTable').innerHTML = `<div class="table-scroll"><table><thead><tr><th>이름</th>${data.matches.map(m => `<th>${m.label}</th>`).join('')}<th>성향</th><th>상태</th></tr></thead><tbody>${data.players.map(player => {
+        const cls = player.status === '탈락' ? 'out' : player.status === '우승' ? 'winner' : 'alive';
+        const statusText = player.status === '탈락' ? `탈락 · ${player.failedMatch}` : player.status;
+        const attitude = getAttitude(player.picks);
+        return `<tr><td><b>${htmlEscape(player.name)}</b></td>${data.matches.map(m => { const result = data.results[m.id]; const ok = result ? player.picks[m.id] === result : null; return `<td>${player.picks[m.id]} ${ok === true ? '✅' : ok === false ? '❌' : ''}</td>`; }).join('')}<td><span class="badge ${attitude.type}">${attitude.label}</span></td><td><span class="badge ${cls}">${statusText}</span></td></tr>`;
+      }).join('')}</tbody></table></div>`;
+    }
+    function renderLog() {
+      if (!data.logs.length) { $('log').innerHTML = '<div class="empty">아직 입력된 경기 결과가 없습니다.</div>'; return; }
+      $('log').innerHTML = data.logs.map(item => `<div class="log-item"><b>${item.match}</b> 결과 <b>${item.result}</b> 입력 · ${new Date(item.at).toLocaleString('ko-KR')}<br/>탈락자: ${item.eliminated.length ? item.eliminated.map(htmlEscape).join(', ') : '없음'}</div>`).join('');
+    }
+    function renderAll() { renderPickInputs(); renderResultInputs(); renderStats(); renderPlayersTable(); renderLog(); bindChoiceButtons(); setStep(IS_ADMIN_PATH ? 'board' : currentStep); }
+
+    async function submitPlayer() {
+      $('playerToast').textContent = '';
+      try {
+        const name = $('playerName').value;
+        const picks = Object.fromEntries(data.matches.map(m => [m.id, selectedPicks[m.id]]));
+        const submissionAttitude = getAttitude(picks);
+        await api('/api/players', { method:'POST', body:JSON.stringify({ name, picks }) });
+        $('playerToast').className = 'toast';
+        $('playerToast').textContent = `${name.trim()}님 참가 등록 완료. 제출한 예측은 수정할 수 없습니다.`;
+        $('playerName').value = '';
+        selectedPicks = {};
+        currentStep = 'board';
+        await refresh();
+        showSubmissionPopup(submissionAttitude, name);
+      } catch (e) {
+        $('playerToast').className = 'toast error';
+        $('playerToast').textContent = e.message;
+      }
+    }
+    async function submitResult(e) {
+      $('adminToast').textContent = '';
+      try {
+        const matchId = e.currentTarget.dataset.resultMatch;
+        const result = selectedResults[matchId];
+        const adminPin = $('adminPin').value;
+        await api('/api/results', { method:'POST', body:JSON.stringify({ matchId, result, adminPin }) });
+        $('adminToast').className = 'toast';
+        $('adminToast').textContent = '결과 입력 완료.';
+        delete selectedResults[matchId];
+        await refresh();
+      } catch (err) {
+        $('adminToast').className = 'toast error';
+        $('adminToast').textContent = err.message;
+      }
+    }
+    async function resetAll() {
+      if (!confirm('정말 전체 초기화할까요? 참가자와 결과가 모두 삭제됩니다.')) return;
+      try {
+        await api('/api/reset', { method:'POST', body:JSON.stringify({ adminPin:$('adminPin').value }) });
+        $('adminToast').className = 'toast';
+        $('adminToast').textContent = '전체 초기화 완료.';
+        selectedPicks = {}; selectedResults = {};
+        await refresh();
+      } catch (e) {
+        $('adminToast').className = 'toast error';
+        $('adminToast').textContent = e.message;
+      }
+    }
+    $('addPlayerBtn').addEventListener('click', submitPlayer);
+    $('resetBtn').addEventListener('click', resetAll);
+    $('stepJoinBtn').addEventListener('click', () => setStep('join'));
+    $('stepBoardBtn').addEventListener('click', () => setStep('board'));
+    $('showBoard').addEventListener('click', showBoardPanel);
+    $('showAdmin').addEventListener('click', () => { if (IS_ADMIN_PATH) showAdminPanel(); });
+    $('modalCloseBtn').addEventListener('click', closeSubmissionPopup);
+    $('feedbackModal').addEventListener('click', e => { if (e.target.id === 'feedbackModal') closeSubmissionPopup(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSubmissionPopup(); });
+
+    refresh().catch(e => { document.body.innerHTML = `<div class="wrap"><div class="card"><h2>서버 연결 실패</h2><p class="error">${htmlEscape(e.message)}</p></div></div>`; });
+    setInterval(() => refresh().catch(() => {}), 3000);
+  </script>
+</body>
+</html>
