@@ -19,6 +19,14 @@
 ADMIN_PIN=1234 PORT=8787 npm start
 ```
 
+GitHub 비공개 저장소에도 사용자 입력값을 실시간 백업하려면 먼저 `.github-data`에 데이터 저장소를 클론한 뒤 아래처럼 실행합니다.
+
+```bash
+GITHUB_SYNC_ENABLED=1 ADMIN_PIN=1234 PORT=8787 npm start
+```
+
+이 프로젝트의 기본 데이터 백업 저장소는 `stylusko/maegukcup-data`입니다. 참가자 이름과 예측값이 들어가므로 반드시 비공개 저장소로 유지해야 합니다.
+
 접속 주소:
 
 - 참가자 화면: `http://127.0.0.1:8787/`
@@ -41,4 +49,4 @@ ADMIN_PIN=1234 TEST_BASE=http://127.0.0.1:8787 node test_api.js
 
 이 앱은 정적 GitHub Pages만으로는 동작하지 않습니다. `server.js`와 JSON 상태 저장을 사용하는 Node.js 서버형 앱이므로 Render, Railway, Fly.io, VPS, 또는 Cloudflare Tunnel 같은 서버 실행 환경이 필요합니다.
 
-`state.json`은 참가자/결과 데이터 파일이므로 Git에 커밋하지 않습니다.
+`state.json`은 참가자/결과 데이터 파일이므로 Git에 커밋하지 않습니다. GitHub 백업을 켠 경우 `state.json`의 스냅샷이 별도 비공개 저장소(`maegukcup-data`)에 커밋됩니다.

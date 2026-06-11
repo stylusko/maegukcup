@@ -2,11 +2,14 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { execFile } = require('child_process');
 
 const PORT = Number(process.env.PORT || 8787);
 const HOST = process.env.HOST || '127.0.0.1';
 const ADMIN_PIN = process.env.ADMIN_PIN ? String(process.env.ADMIN_PIN) : '';
 const STATE_FILE = path.join(__dirname, 'state.json');
+const GITHUB_SYNC_ENABLED = ['1', 'true', 'yes', 'on'].includes(String(process.env.GITHUB_SYNC_ENABLED || '').toLowerCase());
+const GITHUB_DATA_DIR = process.env.GITHUB_DATA_DIR || path.join(__dirname, '.github-data');
 const ENTRY_FEE = 20000;
 const MATCHES = [
   { id: 'czech', label: '한국 vs 체코' },
@@ -30,8 +33,72 @@ function readState() {
   }
 }
 
-function writeState(state) {
+function runCommand(command, args, cwd) {
+  return new Promise((resolve, reject) => {
+    execFile(command, args, { cwd }, (error, stdout, stderr) => {
+      if (error) {
+        error.stdout = stdout;
+        error.stderr = stderr;
+        reject(error);
+        return;
+      }
+      resolve({ stdout, stderr });
+    });
+  });
+}
+
+let githubSyncQueue = Promise.resolve();
+
+async function syncStateToGitHub(state, reason) {
+  if (!GITHUB_SYNC_ENABLED) return;
+  if (!fs.existsSync(path.join(GITHUB_DATA_DIR, '.git'))) {
+    console.error(`[github-sync] ${GITHUB_DATA_DIR} is not a git repository. Skipping backup.`);
+    return;
+  }
+
+  const exported = {
+    syncedAt: new Date().toISOString(),
+    source: 'maegukcup-local-server',
+    state,
+  };
+  fs.writeFileSync(
+    path.join(GITHUB_DATA_DIR, 'state.json'),
+    JSON.stringify(exported, null, 2),
+    'utf8'
+  );
+  fs.writeFileSync(
+    path.join(GITHUB_DATA_DIR, 'README.md'),
+    '# maegukcup-data\n\nPrivate real-time backup snapshots for maegukcup submissions.\n\nDo not make this repository public.\n',
+    'utf8'
+  );
+
+  await runCommand('git', ['add', 'README.md', 'state.json'], GITHUB_DATA_DIR);
+  try {
+    await runCommand('git', ['diff', '--cached', '--quiet'], GITHUB_DATA_DIR);
+    return;
+  } catch (error) {
+    if (error.code !== 1) throw error;
+  }
+
+  const safeReason = String(reason || 'state update').slice(0, 80);
+  await runCommand('git', ['commit', '-m', `Update state: ${safeReason}`], GITHUB_DATA_DIR);
+  await runCommand('git', ['push', 'origin', 'main'], GITHUB_DATA_DIR);
+  console.log(`[github-sync] backed up state to GitHub: ${safeReason}`);
+}
+
+function queueGitHubSync(state, reason) {
+  if (!GITHUB_SYNC_ENABLED) return;
+  const snapshot = structuredClone(state);
+  githubSyncQueue = githubSyncQueue
+    .then(() => syncStateToGitHub(snapshot, reason))
+    .catch(error => {
+      console.error('[github-sync] failed:', error.stderr || error.stdout || error.message);
+    });
+}
+
+function writeState(state, reason = 'state update') {
   fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), 'utf8');
+  queueGitHubSync(state, reason);
 }
 
 function checkedCount(state) {
@@ -102,7 +169,7 @@ function addPlayer(name, picks) {
     picks,
     joinedAt: new Date().toISOString(),
   });
-  writeState(state);
+  writeState(state, `player joined: ${cleanName}`);
   return publicState();
 }
 
@@ -125,14 +192,14 @@ function setResult(matchId, result, adminPin) {
     result,
     eliminated: eliminated.map(p => p.name),
   });
-  writeState(state);
+  writeState(state, `result entered: ${match.label} ${result}`);
   return publicState();
 }
 
 function reset(adminPin) {
   if (!ADMIN_PIN) throw new Error('관리자 PIN이 서버에 설정되지 않았습니다. ADMIN_PIN 환경변수를 설정해 주세요.');
   if (String(adminPin || '') !== ADMIN_PIN) throw new Error('관리자 PIN이 틀렸습니다.');
-  writeState(structuredClone(DEFAULT_STATE));
+  writeState(structuredClone(DEFAULT_STATE), 'admin reset');
   return publicState();
 }
 

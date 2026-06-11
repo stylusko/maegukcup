@@ -1,5 +1,9 @@
 node_modules/
 .env
 state.json
+.github-data/
+maegukcup.db
+*.db
+*.db-journal
 .DS_Store
 npm-debug.log*
